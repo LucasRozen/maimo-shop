@@ -4,6 +4,8 @@ import createError from 'http-errors'
 import cors from 'cors';
 import indexRoutes from './routes/index.js'
 import productRoutes from './routes/products.js'
+import orderRoutes from './routes/orders.js'
+import { connectDb } from './db.js';
 
 /* Clear the console  */
 console.log("\x1Bc");
@@ -12,6 +14,8 @@ const app = express();
 const port = 4000;
 
 app.set('port', process.env.PORT || port);
+
+connectDb();
 
 /* Middlewares */
 app.use(express.urlencoded({ extended: true }));
@@ -33,8 +37,7 @@ app.use(
 /* Routes */
 app.use('/', indexRoutes)
 app.use('/products', productRoutes)
-
-
+app.use('/orders', orderRoutes)
 
 /* Error handler  */
 // catch 404 and forward to error handler
