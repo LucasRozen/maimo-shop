@@ -4,7 +4,9 @@ import Order from '../models/orders.js';
 
 const findAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find().select('_id name');
+    const orders = await Order.find().select(
+      '_id name products clientId status'
+    );
     return res.status(200).send({ message: 'All orders', orders });
   } catch (error) {
     return res.status(501).send({ message: 'Error', error });
@@ -13,7 +15,9 @@ const findAllOrders = async (req, res) => {
 const findOneOrder = async (req, res) => {
   const { id } = req.params;
   try {
-    const order = await Order.findOne({ _id: id }).select('_id name');
+    const order = await Order.findOne({ _id: id }).select(
+      '_id name products clientId status'
+    );
     return res.status(200).send({ message: 'Order info', order });
   } catch (error) {
     return res.status(501).send({ message: 'Error', error });
@@ -23,11 +27,10 @@ const findOneOrder = async (req, res) => {
 const addOrder = async (req, res) => {
   try {
     const { name, products, clientId, status } = req.body;
-    const order = new Order({products, clientId, status });
+    console.log(products);
+    const order = new Order({ name, products, clientId, status });
     await order.save();
-    return res
-      .status(200)
-      .send({ message: `order Created ${name}`, order });
+    return res.status(200).send({ message: `order Created ${name}`, order });
   } catch (error) {
     return res.status(501).send({ message: 'Error', error });
   }
@@ -36,7 +39,7 @@ const addOrder = async (req, res) => {
 const updateOrder = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name } = req.body;
+    const { name, products, clientId, status } = req.body;
 
     const orderToUpdate = await Order.findOne({ _id: id });
 
@@ -44,7 +47,10 @@ const updateOrder = async (req, res) => {
       return res.status(501).send({ message: 'Error order not found' });
     }
 
-    orderToUpdate.name = name;
+    if(name) orderToUpdate.name = name;
+    if(products) orderToUpdate.products = products;
+    if(clientId) orderToUpdate.clientId = clientId;
+    if(status) orderToUpdate.status = status;
     await orderToUpdate.save();
 
     return res
@@ -75,7 +81,7 @@ const deleteOrder = async (req, res) => {
 };
 
 //CRUD (Create, Read, Update, Delete)
-router.get('/', findAllOrders); 
+router.get('/', findAllOrders);
 router.get('/:id', findOneOrder);
 router.post('/', addOrder);
 router.put('/:id', updateOrder);
